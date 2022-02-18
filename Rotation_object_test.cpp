@@ -9,7 +9,7 @@ using namespace std;
 enum Drawing_Method {SHOW_CENTER, NOT_SHOW_CENTER};
 enum Rotation_Method {RINVERSE_X, RINVERSE_Y, RINVERSE_XY, RNOT_INVERSE};
 enum Inverse_Method {IINVERSE_X, IINVERSE_Y, IINVERSE_XY};
-enum Object_Type {CIRCLE, POLYGON};
+enum Object_Type {CIRCLE, POLYGON, LINE};
 
 class Circle {
 private:
@@ -294,6 +294,22 @@ public:
         *this = cpy;
     }
 
+    void set_size(int N) {
+        n = N;
+    }
+
+    void set(vector<POINT> P) {
+        rp_t cpy(x, y, P.size(),  P, fill_color, outline_color);
+        *this = cpy;
+    }
+
+    void set_fc(COLORREF fc) {
+        fill_color = fc;
+    }
+    void set_oc(COLORREF oc) {
+        outline_color = oc;
+    }
+
     void set_rotation_point_xy(double X, double Y) {
         POINT p[n];
         Vreturn(p);
@@ -376,6 +392,22 @@ public:
                 rinverse_y();
         }
     }
+
+    friend ifstream& operator>> (ifstream &input, rp_t &p) {
+        vector<POINT> P(p.n);
+        for (int i = 0; i < p.n; i++) {
+            double X, Y;
+            input >> X >> Y;
+            P[i].x = LONG(X);
+            P[i].y = LONG(Y);
+        }
+        int r, g, b;
+        input >> r >> g >> b;
+        p.set(P);
+        p.set_fc(RGB(r, g, b));
+        p.set_oc(RGB(0, 0, 0));
+        return input;
+    }
 };
 
 typedef class Rotating_Circle rc_t;
@@ -434,6 +466,11 @@ public:
         ang = t.ang;
         R = t.R;
         r = t.r;
+        a0 = t.a0;
+        fill_color = t.fill_color;
+        outline_color = t.outline_color;
+        up = t.up;
+        right = t.right;
         return *this;
     }
 
@@ -488,6 +525,22 @@ public:
         inverse_y();
     }
 
+    void set_r (double K) {
+        R = K;
+    }
+
+    void set (rc_t cpy) {
+        *this = cpy;
+    }
+
+    void set_fc (COLORREF fc) {
+        fill_color = fc;
+    }
+
+    void set_oc (COLORREF oc) {
+        outline_color = oc;
+    }
+
     void inverse(Inverse_Method i) {
         if (i == IINVERSE_X)
             inverse_x();
@@ -497,6 +550,15 @@ public:
             inverse_xy();
     }
 
+    friend ifstream& operator>> (ifstream &input, rc_t &c) {
+        double X, Y, r;
+        int red, green, blue;
+        input >> X >> Y >> r;
+        input >> red >> green >> blue;
+        rc_t cpy(0,0, {X, Y, r}, RGB(red, green, blue), RGB(0, 0, 0));
+        c.set(cpy);
+        return input;
+    }
     void rotate_by_mouse (Rotation_Method m = RNOT_INVERSE) {
         if (GetAsyncKeyState(VK_LBUTTON)) {
             double mx = txMouseX();
@@ -685,6 +747,22 @@ public:
             inverse_xy();
     }
 
+    void set(rl_t line) {
+        *this = line;
+    }
+
+    friend ifstream& operator>> (ifstream &input, rl_t &c) {
+        double X1, Y1, X2, Y2, r;
+        input >> X1 >> Y1;
+        input >> X2 >> Y2;
+        input >> r;
+        int red, green, blue;
+        input >> red >> green >> blue;
+        rl_t cpy(0,0, X1, Y1, X2, Y2, r, RGB(red, green, blue));
+        c.set(cpy);
+        return input;
+    }
+
     void rotate_by_mouse (Rotation_Method m = RNOT_INVERSE) {
         if (GetAsyncKeyState(VK_LBUTTON)) {
             double mx = txMouseX();
@@ -713,13 +791,15 @@ class Rotating_object {
 private:
     double x;
     double y;
-    double cn;
-    double pn;
+    int cn;
+    int pn;
+    int ln;
     vector<Object_Type> order;
     vector<rc_t> circle;
     vector<rp_t> polygon;
+    vector<rl_t> line;
 public:
-    Rotating_object () : x(0), y(0), cn(0), pn(0), order(0), circle(0), polygon(0) {}
+    Rotating_object () : x(0), y(0), cn(0), pn(0), ln(0), order(0), circle(0), polygon(0), line(0) {}
 
     void push_back(rc_t c) {
         order.push_back(CIRCLE);
@@ -733,6 +813,12 @@ public:
         polygon.push_back(p);
     }
 
+    void push_back(rl_t l) {
+        order.push_back(LINE);
+        ln++;
+        line.push_back(l);
+    }
+
     POINT returnXY() {
         POINT ans;
         ans.x = LONG(x);
@@ -740,38 +826,27 @@ public:
         return ans;
     }
 
-    void get_from_file(char* name, double s) {
+    void get_from_file(char* name) {
         ifstream input;
         input.open(name);
         int n;
         while(input >> n) {
-            if (n == -1){
-                double X, Y, r;
-                int red, green, blue;
-
-                input >> X >> Y >> r;
-                input >> red >> green >> blue;
-                X *= s;
-                Y *= s;
-                r *= s;
-                rc_t c (0, 0, {X, Y, r}, RGB(red, green, blue), RGB(red, green, blue));
+            if (n == 1){
+                rc_t c;
+                input >> c;
                 push_back(c);
-
+            }
+            else if (n == 2){
+                rl_t l;
+                input >> l;
+                push_back(l);
             }
             else {
-                vector<POINT> p(n);
-                for (int i = 0; i < n; i++) {
-                     double X, Y;
-                     input >> X >> Y;
-                     X *= s;
-                     Y *= s;
-                     p[i].x = LONG(X);
-                     p[i].y = LONG(Y);
-                }
-                int r, g, b;
-                input >> r >> g >> b;
-                rp_t c(0, 0, n, p, RGB(r, g, b), RGB(r, g, b));
-                push_back(c);
+                rp_t p;
+                p.set_size(n);
+                input >> p;
+                push_back(p);
+
             }
         }
         x = 0;
@@ -786,6 +861,8 @@ public:
             circle[i].set_xy(X, Y);
         for (int i = 0; i < pn; i++)
             polygon[i].set_xy(X, Y);
+        for (int i = 0; i < ln; i++)
+            line[i].set_xy(X, Y);
     }
 
     void set_rotation(double A) {
@@ -793,6 +870,8 @@ public:
             circle[i].set_rotation(A);
         for (int i = 0; i < pn; i++)
             polygon[i].set_rotation(A);
+        for (int i = 0; i < ln; i++)
+            line[i].set_rotation(A);
     }
 
     void inverse(Inverse_Method m) {
@@ -800,6 +879,8 @@ public:
             circle[i].inverse(m);
         for (int i = 0; i < pn; i++)
             polygon[i].inverse(m);
+        for (int i = 0; i < ln; i++)
+            line[i].inverse(m);
     }
 
     void set_rotation_point_xy(double X, double Y) {
@@ -809,11 +890,13 @@ public:
             circle[i].set_rotation_point_xy(X, Y);
         for (int i = 0; i < pn; i++)
             polygon[i].set_rotation_point_xy(X, Y);
+        for (int i = 0; i < ln; i++)
+            line[i].set_rotation_point_xy(X, Y);
     }
 
     void draw(Drawing_Method m = NOT_SHOW_CENTER) {
-        int ic = 0, ip = 0;
-        for (int i = 0; i < cn + pn; i++) {
+        int ic = 0, ip = 0, il = 0;
+        for (int i = 0; i < cn + pn + ln; i++) {
             if (order[i] == CIRCLE) {
                 circle[ic].draw(m);
                 ic++;
@@ -821,6 +904,10 @@ public:
             if (order[i] == POLYGON) {
                 polygon[ip].draw(m);
                 ip++;
+            }
+            if (order[i] == LINE) {
+                line[il].draw(m);
+                il++;
             }
         }
     }
@@ -830,6 +917,8 @@ public:
             circle[i].rotate_by_mouse(m);
         for (int i = 0; i < pn; i++)
             polygon[i].rotate_by_mouse(m);
+        for (int i = 0; i < ln; i++)
+            line[i].rotate_by_mouse(m);
     }
 };
 
@@ -837,16 +926,18 @@ public:
 int main() {
     txCreateWindow(1200, 800);
     txClear();
-    rl_t test(0,0,50,50,100,100, 5,RGB(0,255,0));
-    test.set_xy(600,400);
-    for (double ang = 0; ang < 2 * txPI && !GetAsyncKeyState(VK_ESCAPE); ang += 0.01) {
+    ro_t test;
+    test.get_from_file("fish1.1.txt");
+    //test.set_xy(600,400);
+    /*for (double ang = 0; ang < 2 * txPI && !GetAsyncKeyState(VK_ESCAPE); ang += 0.01) {
         txSetFillColor(TX_WHITE);
         txClear();
         test.draw(SHOW_CENTER);
-        test.inverse_y();
+        test.inverse(IINVERSE_Y);
         test.draw(SHOW_CENTER);
-        test.inverse_y();
+        test.inverse(IINVERSE_Y);
         test.set_rotation(ang);
         txSleep(10);
-    }
+    }*/
+    test.draw(SHOW_CENTER);
 }
