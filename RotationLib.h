@@ -1,4 +1,4 @@
-//���������
+//Плотников
 #include <TXLib.h>
 #include <vector>
 #include <cmath>
@@ -169,11 +169,11 @@ public:
 typedef class Rotating_point r_t;
 class Rotating_point {
 private:
-    double x;
-    double y;
-    double r;
-    double ang;
-    COLORREF color = TX_NULL;
+    double x; //Координата точки вращения
+    double y; //Координата точки вращения
+    double r; //Длина радиус-вектора
+    double ang; //Угол радиус-вектора
+    COLORREF color = TX_NULL; //Цвет точки
 public:
     Rotating_point(): x(0), y(0), r(0), ang(0) {}
 
@@ -294,15 +294,15 @@ public:
 typedef class Rotating_polygon rp_t;
 class Rotating_polygon {
 private:
-    double x;
-    double y;
-    int n;
-    vector<r_t> a;
-    COLORREF fill_color = TX_NULL;
-    COLORREF outline_color = TX_NULL;
-    double a0 = 0;
-    bool right = 1;
-    bool up = 1;
+    double x; //Координата точки вращения
+    double y; //Координата точки вращения
+    int n; //Кол-во точек в полигоне
+    vector<r_t> a; //Массив всех точек
+    COLORREF fill_color = TX_NULL; //Цвет заливки полигона
+    COLORREF outline_color = TX_NULL; //Цвет границы полигона
+    double a0 = 0; //Общий угол поворота
+    bool right = 1; //Необходимо для разворота по оси Y при отрисовке
+    bool up = 1;//Необходимо для разворота по оси Xпри отрисовке
 
     void rinverse_x () {
         for (int i = 0; i < n; i++)
@@ -495,12 +495,12 @@ public:
 typedef class Rotating_Circle rc_t;
 class Rotating_Circle {
 private:
-    double x;
-    double y;
-    double ang;
-    double R;
-    double r;
-    double a0 = 0;
+    double x; //Координата точки вращения
+    double y; //Координата точки вращения
+    double ang; //Начальный угол
+    double R; //Радиус-вектор
+    double r; //Радиус круга
+    double a0 = 0; //Угол поворота
     COLORREF fill_color = TX_NULL;
     COLORREF outline_color = TX_NULL;
     bool up = 1;
@@ -593,7 +593,7 @@ public:
         R /= s;
     }
 
-    void draw (Drawing_Method m = NOT_SHOW_CENTER) {
+    void draw (Drawing_Method m=NOT_SHOW_CENTER) {
         Circle c(0, 0, r, fill_color, outline_color);
         Creturn(c);
         c.draw();
@@ -682,14 +682,14 @@ public:
 typedef class Rotating_Line rl_t;
 class Rotating_Line {
 private:
-    double x;
-    double y;
-    double r1;
-    double r2;
-    double a1;
-    double a2;
-    double a0 = 0;
-    double r;
+    double x; //Координата точки вращения
+    double y;//Координата точки вращения
+    double r1; //Радиус вектор первой точки
+    double r2; //Радиус вектор второй точки
+    double a1; //Угол поворота первой точки
+    double a2; //Угол поворота второй точки
+    double a0 = 0; //Общий угол поворота
+    double r; //Толщина линии
     COLORREF outline_color = TX_NULL;
     bool up = 1;
     bool right = 1;
@@ -924,15 +924,15 @@ public:
 typedef class Rotating_object ro_t;
 class Rotating_object {
 private:
-    double x;
-    double y;
-    int cn;
-    int pn;
-    int ln;
-    vector<Object_Type> order;
-    vector<rc_t> circle;
-    vector<rp_t> polygon;
-    vector<rl_t> line;
+    double x; //Координата точки вращения
+    double y; //Координата точки вращения
+    int cn; //Кол-во кругов
+    int pn; //Кол-во полигонов
+    int ln; //Кол-во линий
+    vector<Object_Type> order; //Порядок рисования фигур
+    vector<rc_t> circle; //Круги
+    vector<rp_t> polygon; //Полигоны
+    vector<rl_t> line; //Линии
 public:
     Rotating_object () : x(0), y(0), cn(0), pn(0), ln(0), order(0), circle(0), polygon(0), line(0) {}
 
