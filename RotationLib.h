@@ -7,10 +7,29 @@
 
 using namespace std;
 
-enum Drawing_Method {SHOW_CENTER, NOT_SHOW_CENTER};
-enum Rotation_Method {RINVERSE_X, RINVERSE_Y, RINVERSE_XY, RNOT_INVERSE};
-enum Inverse_Method {IINVERSE_X, IINVERSE_Y, IINVERSE_XY};
-enum Object_Type {CIRCLE, POLYGON, LINE};
+enum Drawing_Method {
+    SHOW_CENTER,
+    NOT_SHOW_CENTER
+};
+
+enum Rotation_Method {
+    RINVERSE_X,
+    RINVERSE_Y,
+    RINVERSE_XY,
+    RNOT_INVERSE
+};
+
+enum Inverse_Method {
+    IINVERSE_X,
+    IINVERSE_Y,
+    IINVERSE_XY
+};
+
+enum Object_Type {
+    CIRCLE,
+    POLYGON,
+    LINE
+};
 
 class Circle {
 private:
@@ -21,8 +40,15 @@ private:
     COLORREF outline_color = TX_NULL;
 public:
     Circle () : x(0), y(0), r(0) {}
+
     Circle (double X, double Y, double R) : x(X), y(Y), r(R) {}
-    Circle (double X, double Y, double R, COLORREF f, COLORREF o) : x(X), y(Y), r(R), fill_color(f), outline_color(o) {}
+
+    Circle (double X, double Y, double R, COLORREF f, COLORREF o): x(X),
+                                                                   y(Y),
+                                                                   r(R),
+                                                                   fill_color(f),
+                                                                   outline_color(o)
+                                                                   {}
     Circle& operator= (const Circle& c) {
         x = c.x;
         y = c.y;
@@ -55,6 +81,7 @@ public:
     void set(double R) {
         r = R;
     }
+
     void set(COLORREF fc, COLORREF oc) {
         fill_color = fc;
         outline_color = oc;
@@ -71,10 +98,33 @@ private:
     COLORREF outline_color = TX_NULL;
 public:
     Line () : x1(0), y1(0), x2(0), y2(0), r(0) {}
-    Line (double X1, double Y1, double X2, double Y2, double R) : x1(X1), y1(Y1), x2(X2), y2(Y2), r(R) {}
-    Line (POINT p1, POINT p2, double R) : x1(p1.x), y1(p1.y), x2(p2.x), y2(p2.y), r(R) {}
-    Line (double X1, double Y1, double X2, double Y2, double R, COLORREF oc) : x1(X1), y1(Y1), x2(X2), y2(Y2), r(R), outline_color(oc) {}
-    Line (POINT p1, POINT p2, double R, COLORREF oc) : x1(p1.x), y1(p1.y), x2(p2.x), y2(p2.y), r(R), outline_color(oc) {}
+
+    Line (double X1, double Y1, double X2, double Y2, double R): x1(X1),
+                                                                 y1(Y1),
+                                                                 x2(X2),
+                                                                 y2(Y2),
+                                                                 r(R)
+                                                                 {}
+    Line (POINT p1, POINT p2, double R): x1(p1.x),
+                                         y1(p1.y),
+                                         x2(p2.x),
+                                         y2(p2.y),
+                                         r(R)
+                                         {}
+    Line (double X1, double Y1, double X2, double Y2, double R, COLORREF oc): x1(X1),
+                                                                              y1(Y1),
+                                                                              x2(X2),
+                                                                              y2(Y2),
+                                                                              r(R),
+                                                                              outline_color(oc)
+                                                                              {}
+    Line (POINT p1, POINT p2, double R, COLORREF oc): x1(p1.x),
+                                                      y1(p1.y),
+                                                      x2(p2.x),
+                                                      y2(p2.y),
+                                                      r(R),
+                                                      outline_color(oc)
+                                                      {}
 
     Line& operator= (const Line &l) {
         x1 = l.x1;
@@ -125,8 +175,13 @@ private:
     double ang;
     COLORREF color = TX_NULL;
 public:
-    Rotating_point() : x(0), y(0), r(0), ang(0) {}
-    Rotating_point(double X, double Y, double x0, double y0, COLORREF c) : x(0), y(0), r(0), ang(0), color(c) {
+    Rotating_point(): x(0), y(0), r(0), ang(0) {}
+
+    Rotating_point(double X, double Y, double x0, double y0, COLORREF c): x(0),
+                                                                          y(0),
+                                                                          r(0),
+                                                                          ang(0),
+                                                                          color(c) {
         double dx = x0 - X;
         double dy = y0 - Y;
         x = X;
@@ -136,7 +191,8 @@ public:
         if (dy < 0)
             ang = -ang;
     }
-    Rotating_point(double X, double Y, POINT p, COLORREF c) : x(0), y(0), r(0), ang(0), color(c)  {
+
+    Rotating_point(double X, double Y, POINT p, COLORREF c): x(0), y(0), r(0), ang(0), color(c)  {
         double dx = p.x - X;
         double dy = p.y - Y;
         x = X;
@@ -217,7 +273,7 @@ public:
             inverse_xy();
     }
 
-    void draw (Drawing_Method m = NOT_SHOW_CENTER) {
+    void draw (Drawing_Method m=NOT_SHOW_CENTER) {
         txSetPixel(x + r * cos(ang), y + r * sin(ang), color);
         if (m == SHOW_CENTER)
             txSetPixel(x, y, RGB(255, 0, 0));
@@ -259,24 +315,40 @@ private:
             a[i].set_rotation(-a[i].get_ang());
         right = 1 - right;
     }
+
 public:
-    Rotating_polygon() : x(0), y(0), n(0), a(0) {}
-    Rotating_polygon(double X, double Y, int N, POINT *p ) : x(X), y(Y), n(N), a(0) {
+    Rotating_polygon(): x(0), y(0), n(0), a(0) {}
+
+    Rotating_polygon(double X, double Y, int N, POINT *p ): x(X), y(Y), n(N), a(0) {
         a.resize(n);
         for (int i = 0; i < n; i++)
             a[i].set(p[i], x, y);
     }
-    Rotating_polygon(double X, double Y, int N, vector<POINT> p) : x(X), y(Y), n(N), a(0) {
+
+    Rotating_polygon(double X, double Y, int N, vector<POINT> p): x(X), y(Y), n(N), a(0) {
         a.resize(n);
         for (int i = 0; i < n; i++)
             a[i].set(p[i], x, y);
     }
-    Rotating_polygon(double X, double Y, int N, POINT *p, COLORREF fc, COLORREF oc) : x(X), y(Y), n(N), a(0), fill_color(fc), outline_color(oc) {
+
+    Rotating_polygon(double X, double Y, int N, POINT *p, COLORREF fc, COLORREF oc): x(X),
+                                                                                     y(Y),
+                                                                                     n(N),
+                                                                                     a(0),
+                                                                                     fill_color(fc),
+                                                                                     outline_color(oc) {
         a.resize(n);
         for (int i = 0; i < n; i++)
             a[i].set(p[i], x, y);
     }
-    Rotating_polygon(double X, double Y, int N, vector<POINT> p, COLORREF fc, COLORREF oc) : x(X), y(Y), n(N), a(0), fill_color(fc), outline_color(oc) {
+
+    Rotating_polygon(double X, double Y, int N, vector<POINT> p, COLORREF fc, COLORREF oc): x(X),
+                                                                                            y(Y),
+                                                                                            n(N),
+                                                                                            a(0),
+                                                                                            fill_color(fc),
+                                                                                            outline_color(oc)
+                                                                                            {
         a.resize(n);
         for (int i = 0; i < n; i++)
             a[i].set(p[i], x, y);
@@ -292,6 +364,7 @@ public:
         up = k.up;
         return *this;
     }
+
     void Vreturn(POINT *p) {
         const rp_t cpy = *this;
         for (int i = 0; i < n; i++)
@@ -311,6 +384,7 @@ public:
     void set_fc(COLORREF fc) {
         fill_color = fc;
     }
+
     void set_oc(COLORREF oc) {
         outline_color = oc;
     }
@@ -367,8 +441,7 @@ public:
         }
     }
 
-    void draw (Drawing_Method m = NOT_SHOW_CENTER) {
-        //bool r = right, u = up;
+    void draw (Drawing_Method m=NOT_SHOW_CENTER) {
         const rp_t cpy = *this;
         POINT p[n];
         Vreturn(p);
@@ -380,12 +453,10 @@ public:
             txSetFillColor(RGB(255, 0, 0));
             txCircle(x, y, 5);
         }
-        //right = r;
-        //up = u;
         *this = cpy;
     }
 
-    void rotate_by_mouse (Rotation_Method m = RNOT_INVERSE) {
+    void rotate_by_mouse (Rotation_Method m=RNOT_INVERSE) {
         if (GetAsyncKeyState(VK_LBUTTON)) {
             double mx = txMouseX(), my = txMouseY();
             double dx = mx - x, dy = my - y;
@@ -444,9 +515,11 @@ private:
         ang = - ang;
         right = 1 - right;
     }
+
 public:
-    Rotating_Circle() : x(0), y(0), ang(0), R(0), r(0) {}
-    Rotating_Circle(double X, double Y, Circle c) : x(0), y(0), ang(0), R(0), r(0) {
+    Rotating_Circle(): x(0), y(0), ang(0), R(0), r(0) {}
+
+    Rotating_Circle(double X, double Y, Circle c): x(0), y(0), ang(0), R(0), r(0) {
         x = X;
         y = Y;
         POINT p = c.returnXY();
@@ -458,7 +531,14 @@ public:
             ang = -ang;
         r = c.returnR();
     }
-    Rotating_Circle(double X, double Y, Circle c, COLORREF fc, COLORREF oc) : x(0), y(0), ang(0), R(0), r(0), fill_color(fc), outline_color(oc) {
+
+    Rotating_Circle(double X, double Y, Circle c, COLORREF fc, COLORREF oc): x(0),
+                                                                             y(0),
+                                                                             ang(0),
+                                                                             R(0),
+                                                                             r(0),
+                                                                             fill_color(fc),
+                                                                             outline_color(oc) {
         x = X;
         y = Y;
         POINT p = c.returnXY();
@@ -575,6 +655,7 @@ public:
         c.set(cpy);
         return input;
     }
+
     void rotate_by_mouse (Rotation_Method m = RNOT_INVERSE) {
         if (GetAsyncKeyState(VK_LBUTTON)) {
             double mx = txMouseX();
@@ -624,9 +705,17 @@ private:
         a2 = -a2;
         up = 1 - up;
     }
+
 public:
-    Rotating_Line () : x(0), y(0), r1(0), r2(0), a1(0), a2(0), r(0) {}
-    Rotating_Line (double X, double Y, POINT p1, POINT p2, double R) : x(X), y(Y), r1(0), r2(0), a1(0), a2(0), r(R) {
+    Rotating_Line (): x(0), y(0), r1(0), r2(0), a1(0), a2(0), r(0) {}
+
+    Rotating_Line (double X, double Y, POINT p1, POINT p2, double R): x(X),
+                                                                      y(Y),
+                                                                      r1(0),
+                                                                      r2(0),
+                                                                      a1(0),
+                                                                      a2(0),
+                                                                      r(R) {
         double dx1 = p1.x - X;
         double dy1 = p1.y - Y;
         double dx2 = p2.x - X;
@@ -640,7 +729,14 @@ public:
         if (dy2 < 0)
             a2 = -a2;
     }
-    Rotating_Line (double X, double Y, double X1, double Y1, double X2, double Y2, double R) : x(X), y(Y), r1(0), r2(0), a1(0), a2(0), r(R) {
+
+    Rotating_Line (double X, double Y, double X1, double Y1, double X2, double Y2, double R): x(X),
+                                                                                              y(Y),
+                                                                                              r1(0),
+                                                                                              r2(0),
+                                                                                              a1(0),
+                                                                                              a2(0),
+                                                                                              r(R) {
         double dx1 = X1 - X;
         double dy1 = Y1 - Y;
         double dx2 = X2 - X;
@@ -654,7 +750,15 @@ public:
         if (dy2 < 0)
             a2 = -a2;
     }
-    Rotating_Line (double X, double Y, POINT p1, POINT p2, double R, COLORREF oc) : x(X), y(Y), r1(0), r2(0), a1(0), a2(0), r(R), outline_color(oc) {
+
+    Rotating_Line (double X, double Y, POINT p1, POINT p2, double R, COLORREF oc): x(X),
+                                                                                   y(Y),
+                                                                                   r1(0),
+                                                                                   r2(0),
+                                                                                   a1(0),
+                                                                                   a2(0),
+                                                                                   r(R),
+                                                                                   outline_color(oc) {
         double dx1 = p1.x - X;
         double dy1 = p1.y - Y;
         double dx2 = p2.x - X;
@@ -668,7 +772,16 @@ public:
         if (dy2 < 0)
             a2 = -a2;
     }
-    Rotating_Line (double X, double Y, double X1, double Y1, double X2, double Y2, double R, COLORREF oc) : x(X), y(Y), r1(0), r2(0), a1(0), a2(0), r(R), outline_color(oc) {
+
+    Rotating_Line (double X, double Y, double X1, double Y1, double X2, double Y2, double R, COLORREF oc):
+                   x(X),
+                   y(Y),
+                   r1(0),
+                   r2(0),
+                   a1(0),
+                   a2(0),
+                   r(R),
+                   outline_color(oc) {
         double dx1 = X1 - X;
         double dy1 = Y1 - Y;
         double dx2 = X2 - X;
@@ -730,7 +843,7 @@ public:
         *this = cpy;
     }
 
-    void draw(Drawing_Method m = NOT_SHOW_CENTER) {
+    void draw(Drawing_Method m=NOT_SHOW_CENTER) {
         Line l;
         Lreturn(l);
         l.draw();
@@ -785,7 +898,7 @@ public:
         return input;
     }
 
-    void rotate_by_mouse (Rotation_Method m = RNOT_INVERSE) {
+    void rotate_by_mouse (Rotation_Method m=RNOT_INVERSE) {
         if (GetAsyncKeyState(VK_LBUTTON)) {
             double mx = txMouseX();
             double my = txMouseY();
@@ -857,7 +970,7 @@ public:
             k.size(s);
     }
 
-    void get_from_file(const char* name, double s = 1, double X = 0, double Y = 0) {
+    void get_from_file(const char* name, double s=1, double X=0, double Y=0) {
         ifstream input;
         input.open(name);
         int n;
@@ -928,7 +1041,7 @@ public:
             line[i].set_rotation_point_xy(X, Y);
     }
 
-    void draw(Drawing_Method m = NOT_SHOW_CENTER) {
+    void draw(Drawing_Method m=NOT_SHOW_CENTER) {
         int ic = 0, ip = 0, il = 0;
         for (int i = 0; i < cn + pn + ln; i++) {
             if (order[i] == CIRCLE) {
@@ -946,7 +1059,7 @@ public:
         }
     }
 
-    void rotate_by_mouse(Rotation_Method m = RNOT_INVERSE) {
+    void rotate_by_mouse(Rotation_Method m=RNOT_INVERSE) {
         for (int i = 0; i < cn; i++)
             circle[i].rotate_by_mouse(m);
         for (int i = 0; i < pn; i++)

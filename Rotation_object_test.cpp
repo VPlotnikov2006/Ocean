@@ -19,6 +19,7 @@ int main() {
         k.first.set_xy(rand() % 1200, rand() % 800);
     for (auto &k : flock)
         k.second = (rand() % 100 ) / 10 + 5;
+    txBegin();
     while(!GetAsyncKeyState(VK_ESCAPE)){
         txSetFillColor(TX_WHITE);
         txClear();
@@ -39,5 +40,6 @@ int main() {
             k.first.draw();
         txSleep(10);
     }
+    txEnd();
     txDeleteDC(background);
 }
